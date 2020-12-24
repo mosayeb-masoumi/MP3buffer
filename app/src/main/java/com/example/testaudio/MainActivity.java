@@ -7,6 +7,8 @@ import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -20,9 +22,9 @@ public class MainActivity extends AppCompatActivity {
 
  //   https://www.youtube.com/watch?v=Z4DQdeMAJRE
 
-    ImageView imagePlayPause;
+    ImageView imgPlay ,imgPause;
     TextView textCurrentTime, textTotalDuration;
-    SeekBar playerSeekbar;
+    SeekBar seekbar;
     MediaPlayer mediaPlayer;
 
     Handler handler = new Handler();
@@ -33,42 +35,41 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        imagePlayPause = findViewById(R.id.imagePlayPause);
+
+        imgPlay = findViewById(R.id.imgPlay);
+        imgPause = findViewById(R.id.imgPause);
         textCurrentTime = findViewById(R.id.textCurrentTime);
         textTotalDuration = findViewById(R.id.textTotalDuration);
-        playerSeekbar = findViewById(R.id.playerSeekbar);
-        imagePlayPause = findViewById(R.id.imagePlayPause);
+        seekbar = findViewById(R.id.playerSeekbar);
+
 
         mediaPlayer = new MediaPlayer();
 
-        playerSeekbar.setMax(100);
+        seekbar.setMax(100);
 
 
 
-        imagePlayPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                
-               if(mediaPlayer.isPlaying()){
+        imgPlay.setOnClickListener(v -> {
+            prepareMediaPlayer();
+            mediaPlayer.start();
+            imgPlay.setVisibility(View.GONE);
+            imgPause.setVisibility(View.VISIBLE);
+            updateSeekbar();
+        });
 
-                   handler.removeCallbacks(updater);
-                   mediaPlayer.pause();
-                   imagePlayPause.setImageResource(R.drawable.play);
-
-               }else{
-
-                   mediaPlayer.start();
-                   imagePlayPause.setImageResource(R.drawable.pause);
-                   updateSeekbar();
-               }
-                
+        imgPause.setOnClickListener(v -> {
+            if(mediaPlayer.isPlaying()){
+                handler.removeCallbacks(updater);
+                mediaPlayer.pause();
+                imgPlay.setVisibility(View.VISIBLE);
+                imgPause.setVisibility(View.GONE);
             }
         });
 
 
-        prepareMediaPlayer();
 
-        playerSeekbar.setOnTouchListener(new View.OnTouchListener() {
+
+        seekbar.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -85,25 +86,29 @@ public class MainActivity extends AppCompatActivity {
         mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
             @Override
             public void onBufferingUpdate(MediaPlayer mediaPlayer, int i) {
-                playerSeekbar.setSecondaryProgress(i);
+                seekbar.setSecondaryProgress(i);
             }
         });
 
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                 playerSeekbar.setProgress(0);
-                 imagePlayPause.setImageResource(R.drawable.play);
+                 seekbar.setProgress(0);
+
+                 imgPlay.setVisibility(View.VISIBLE);
+                 imgPause.setVisibility(View.GONE);
+//                 imagePlayPause.setImageResource(R.drawable.play);
                  textCurrentTime.setText("0:00");
                  textTotalDuration.setText("0:00");
                  mediaPlayer.reset();
-                 prepareMediaPlayer();
+//                 prepareMediaPlayer();
             }
         });
 
     }
 
     private void prepareMediaPlayer(){
+
         try {
 
             mediaPlayer.setDataSource("https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_2MG.mp3");
@@ -117,6 +122,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
+
+
+
+
     private Runnable updater = new Runnable() {
         @Override
         public void run() {
@@ -126,12 +137,14 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
     private void updateSeekbar(){
         if(mediaPlayer.isPlaying()){
-            playerSeekbar.setProgress((int) (((float) mediaPlayer.getCurrentPosition() / mediaPlayer.getDuration()) *100 ));
+            seekbar.setProgress((int) (((float) mediaPlayer.getCurrentPosition() / mediaPlayer.getDuration()) *100 ));
             handler.postDelayed(updater , 1000);
         }
     }
+
 
 
     private String milliSecondToTimer (long milliSeconds){
@@ -154,7 +167,6 @@ public class MainActivity extends AppCompatActivity {
 
         timerString = timerString + minutes + ":" + secondsString;
         return timerString;
-
     }
 
 

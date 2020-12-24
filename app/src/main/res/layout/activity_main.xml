@@ -4,16 +4,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F69F9F"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <ImageView
+
+    <RelativeLayout
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="center"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/play"
-        android:id="@+id/imagePlayPause"/>
+        android:layout_marginTop="10dp">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/play"
+            android:id="@+id/imgPlay"/>
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/pause"
+            android:visibility="gone"
+            android:id="@+id/imgPause"/>
+
+    </RelativeLayout>
+
 
 
     <LinearLayout
