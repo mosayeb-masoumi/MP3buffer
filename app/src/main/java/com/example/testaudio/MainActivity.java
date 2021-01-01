@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,6 +19,17 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.danikula.videocache.HttpProxyCacheServer;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
+
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
+
+
+
 public class MainActivity extends AppCompatActivity {
 
  //   https://www.youtube.com/watch?v=Z4DQdeMAJRE
@@ -27,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     SeekBar seekbar;
     MediaPlayer mediaPlayer;
 
-    Handler handler = new Handler();
+    Handler  handler = new Handler();
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -111,7 +123,16 @@ public class MainActivity extends AppCompatActivity {
 
         try {
 
-            mediaPlayer.setDataSource("https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_2MG.mp3");
+
+            String path = "https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_2MG.mp3";
+
+
+            // to read from cache
+            HttpProxyCacheServer proxyServer = new HttpProxyCacheServer.Builder(this).maxCacheSize(1024 * 1024 * 1024).build();
+            String proxyUrl = proxyServer.getProxyUrl(path);
+
+            mediaPlayer.setDataSource(proxyUrl);
+
             mediaPlayer.prepare();
             textTotalDuration.setText(milliSecondToTimer(mediaPlayer.getDuration()));
 
